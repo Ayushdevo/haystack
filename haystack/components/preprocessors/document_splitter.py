@@ -574,7 +574,9 @@ class DocumentSplitter:
 
                 # Get the number of sentences that overlap with the next chunk
                 num_sentences_to_keep = DocumentSplitter._number_of_sentences_to_keep(
-                    sentences=current_chunk, split_length=split_length, split_overlap=split_overlap
+                    sentences=current_chunk,
+                    split_length=max(0, split_length - next_sentence_word_count),
+                    split_overlap=split_overlap,
                 )
                 # Set up information for the new chunk
                 if num_sentences_to_keep > 0:

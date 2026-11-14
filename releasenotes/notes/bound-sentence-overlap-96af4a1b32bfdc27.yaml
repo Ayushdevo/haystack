@@ -1,0 +1,5 @@
+fixes:
+  - |
+    ``DocumentSplitter`` now reduces sentence overlap when it would make the next
+    chunk exceed ``split_length`` in word mode with ``respect_sentence_boundary=True``.
+    Sentences that exceed the limit on their own are still kept whole.
