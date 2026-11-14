@@ -721,6 +721,26 @@ class TestSplittingByFunctionOrCharacterRegex:
 
 class TestSplittingNLTKSentenceSplitter:
     @pytest.mark.parametrize(
+        "text, expected",
+        [
+            ("Blue sky. Go. We walk into the woods.", ["Blue sky. Go. ", "We walk into the woods."]),
+            ("Blue sky. Go. We walk home. Stop.", ["Blue sky. Go. ", "Go. We walk home. Stop."]),
+            ("Blue sky. Go. We walk far into the woods.", ["Blue sky. Go. ", "We walk far into the woods."]),
+        ],
+    )
+    def test_sentence_overlap_leaves_room_for_next_sentence(self, text, expected):
+        source = Document(content=text)
+        splitter = DocumentSplitter(split_by="word", split_length=5, split_overlap=1, respect_sentence_boundary=True)
+        documents = splitter.run(documents=[source])["documents"]
+        assert [doc.content for doc in documents] == expected
+        assert [doc.meta["split_id"] for doc in documents] == list(range(len(expected)))
+        for doc in documents:
+            start = doc.meta["split_idx_start"]
+            assert doc.content == text[start : start + len(doc.content)]
+            assert doc.meta["source_id"] == source.id
+        assert merge_documents(documents) == text
+
+    @pytest.mark.parametrize(
         "sentences, expected_num_sentences",
         [
             (["The sun set.", "Moonlight shimmered softly, wolves howled nearby, night enveloped everything."], 0),
